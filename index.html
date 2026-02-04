@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wiley Teaches Typing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="brand">
+        <div class="brand-logo">W</div>
+        <div>
+          <div class="brand-title">Wiley Teaches Typing</div>
+          <div class="brand-subtitle">
+            Created by Benkworld Devops (Mr. Ellis) • Interactive typing & literacy for Grades 1–12
+          </div>
+        </div>
+      </div>
+      <div class="user-info" id="userInfo">
+        Not signed in
+      </div>
+    </header>
+
+    <!-- LOGIN CARD -->
+    <div class="card" id="loginCard">
+      <div class="card-title">Welcome to Wiley Teaches Typing</div>
+      <div class="card-subtitle">
+        Enter your name and grade to start your personalized typing journey.
+      </div>
+      <div class="row">
+        <div>
+          <label for="studentName">Student name</label>
+          <input type="text" id="studentName" placeholder="e.g., Jordan Smith" />
+        </div>
+        <div>
+          <label for="studentGrade">Grade level</label>
+          <select id="studentGrade">
+            <option value="">Select grade</option>
+            <option value="1">Grade 1</option>
+            <option value="2">Grade 2</option>
+            <option value="3">Grade 3</option>
+            <option value="4">Grade 4</option>
+            <option value="5">Grade 5</option>
+            <option value="6">Grade 6</option>
+            <option value="7">Grade 7</option>
+            <option value="8">Grade 8</option>
+            <option value="9">Grade 9</option>
+            <option value="10">Grade 10</option>
+            <option value="11">Grade 11</option>
+            <option value="12">Grade 12</option>
+          </select>
+        </div>
+      </div>
+      <div class="login-footer">
+        <div class="pill">Tip: Your grade helps set goals for speed and difficulty.</div>
+        <button class="primary" id="startBtn">Start learning</button>
+      </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp" class="hidden">
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="learnTab">
+          <span class="tab-icon">📚</span> Learn
+        </button>
+        <button class="tab-btn" data-tab="workTab">
+          <span class="tab-icon">✏️</span> Work
+        </button>
+        <button class="tab-btn" data-tab="gamesTab">
+          <span class="tab-icon">🎮</span> Games
+        </button>
+        <button class="tab-btn" data-tab="testTab">
+          <span class="tab-icon">🧪</span> Test
+        </button>
+        <button class="tab-btn" data-tab="freeTab">
+          <span class="tab-icon">📝</span> Free Typing
+        </button>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Dashboard</div>
+            <div class="section-subtitle">
+              Track your progress, speed, and accuracy across all activities.
+            </div>
+          </div>
+          <div>
+            <span class="level-badge" id="levelBadge">Level 1 • Beginner</span>
+          </div>
+        </div>
+        <div class="stats-bar" id="globalStats">
+          <div class="stat-chip neutral">Sessions: <span id="statSessions">0</span></div>
+          <div class="stat-chip success">Best WPM: <span id="statBestWpm">0</span></div>
+          <div class="stat-chip success">Best Accuracy: <span id="statBestAcc">0</span>%</div>
+          <div class="stat-chip">Last section: <span id="statLastSection">None</span></div>
+        </div>
+        <div class="difficulty-line" id="difficultyLine">
+          Grade-based targets: WPM – <span id="targetWpm">0</span>, Accuracy – <span id="targetAcc">0</span>%
+        </div>
+      </div>
+
+      <!-- LEARN -->
+      <div id="learnTab" class="section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Learn • Guided lessons</div>
+            <div class="section-subtitle">
+              Practice letters, words, and sentences with real-time feedback.
+            </div>
+          </div>
+          <button class="secondary small" id="learnNewTargetBtn">New practice sentence</button>
+        </div>
+
+        <div class="stats-bar">
+          <div class="stat-chip">Mode: Home row & sight words</div>
+          <div class="stat-chip success">Target accuracy ≥ <span id="learnTargetAcc">90</span>%</div>
+          <div class="stat-chip success">Target WPM ≥ <span id="learnTargetWpm">15</span></div>
+        </div>
+
+        <div class="typing-target" id="learnTarget"></div>
+        <input
+          id="learnInput"
+          class="typing-input"
+          placeholder="Type the sentence above and press Enter"
+        />
+        <div class="feedback" id="learnFeedback"></div>
+      </div>
+
+      <!-- WORK -->
+      <div id="workTab" class="section hidden">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Work • Assignments & practice</div>
+            <div class="section-subtitle">
+              Copy the paragraph carefully. Focus on accuracy first, then speed.
+            </div>
+          </div>
+          <button class="secondary small" id="workNewParagraphBtn">New paragraph</button>
+        </div>
+
+        <div class="stats-bar">
+          <div class="stat-chip">Assignment: Copy the paragraph</div>
+          <div class="stat-chip success">Goal: Accuracy ≥ <span id="workTargetAcc">92</span>%</div>
+        </div>
+
+        <div class="typing-target" id="workTarget"></div>
+        <textarea
+          id="workInput"
+          placeholder="Type the paragraph above here..."
+        ></textarea>
+        <div class="section-footer-row">
+          <button class="primary small" id="workCheckBtn">Check work</button>
+          <div class="feedback" id="workFeedback"></div>
+        </div>
+      </div>
+
+      <!-- GAMES -->
+      <div id="gamesTab" class="section hidden">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Games • Frog & Balloon Pop</div>
+            <div class="section-subtitle">
+              Build speed and accuracy through fun, fast-paced challenges.
+            </div>
+          </div>
+          <div class="game-switcher">
+            <button class="secondary small game-toggle active" data-game="frog">Frog Game</button>
+            <button class="secondary small game-toggle" data-game="balloon">Balloon Pop</button>
+          </div>
+        </div>
+
+        <!-- FROG GAME -->
+        <div id="frogGameContainer">
+          <div class="stats-bar">
+            <div class="stat-chip">Score: <span id="gameScore">0</span></div>
+            <div class="stat-chip">Missed: <span id="gameMissed">0</span></div>
+            <div class="stat-chip">Difficulty scales with grade</div>
+          </div>
+
+          <div class="frog-game-area">
+            <div class="frog" id="frog">🐸</div>
+            <div class="fly-word" id="flyWord">ready?</div>
+          </div>
+
+          <input
+            id="gameInput"
+            class="typing-input"
+            placeholder="Type the word shown above and press Enter"
+          />
+          <div class="feedback" id="gameFeedback"></div>
+          <div class="section-footer-row">
+            <button class="primary small" id="gameStartBtn">Start / Restart Frog Game</button>
+          </div>
+        </div>
+
+        <!-- BALLOON POP GAME -->
+        <div id="balloonGameContainer" class="hidden">
+          <div class="section-subtitle" style="margin-bottom:6px;">
+            Choose a mode, then pop as many balloons as you can by typing their words.
+          </div>
+          <div class="stats-bar">
+            <div class="stat-chip">Score: <span id="balloonScore">0</span></div>
+            <div class="stat-chip">Combo: <span id="balloonCombo">0</span></div>
+            <div class="stat-chip danger">Escaped: <span id="balloonEscaped">0</span></div>
+            <div class="stat-chip">Time left: <span id="balloonTime">60</span>s</div>
+          </div>
+
+          <div class="balloon-game-area" id="balloonArea"></div>
+
+          <input
+            id="balloonInput"
+            class="typing-input"
+            placeholder="Type any balloon's word and press Enter"
+          />
+          <div class="feedback" id="balloonFeedback"></div>
+
+          <div class="section-footer-row">
+            <button class="primary small" id="balloonStartBtn">Start Balloon Game</button>
+          </div>
+
+          <!-- Mode selection modal -->
+          <div id="balloonModeModal" class="modal hidden">
+            <div class="modal-content">
+              <div class="modal-title">Choose Balloon Pop Mode</div>
+              <div class="modal-subtitle">
+                Timed Mode: 60 seconds. Escape Mode: game ends after 10 escaped balloons.
+              </div>
+              <div class="modal-buttons">
+                <button class="primary small" data-mode="timed">Timed Mode</button>
+                <button class="secondary small" data-mode="escape">Escape Mode</button>
+                <button class="secondary small" data-mode="cancel">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEST -->
+      <div id="testTab" class="section hidden">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Test • Assessment mode</div>
+            <div class="section-subtitle">
+              Timed test with WPM and accuracy. No hints, just you and the keyboard.
+            </div>
+          </div>
+          <button class="secondary small" id="testStartBtn">Start 1-minute test</button>
+        </div>
+
+        <div class="stats-bar">
+          <div class="stat-chip danger">Time left: <span id="testTime">60</span>s</div>
+          <div class="stat-chip">WPM: <span id="testWpm">0</span></div>
+          <div class="stat-chip">Accuracy: <span id="testAcc">0</span>%</div>
+        </div>
+
+        <div class="typing-target" id="testTarget"></div>
+        <textarea
+          id="testInput"
+          placeholder="When the test starts, type the text above until time runs out."
+        ></textarea>
+        <div class="feedback" id="testFeedback"></div>
+      </div>
+
+      <!-- FREE TYPING -->
+      <div id="freeTab" class="section hidden">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Free Typing • Open practice</div>
+            <div class="section-subtitle">
+              Type anything you like. Stats update in real time.
+            </div>
+          </div>
+          <button class="secondary small" id="freeResetBtn">Reset stats</button>
+        </div>
+
+        <div class="stats-bar">
+          <div class="stat-chip">Session time: <span id="freeTime">0</span>s</div>
+          <div class="stat-chip">WPM: <span id="freeWpm">0</span></div>
+          <div class="stat-chip">Accuracy: <span id="freeAcc">100</span>%</div>
+        </div>
+
+        <textarea
+          id="freeInput"
+          placeholder="Start typing here. Paste text if you want to practice something specific."
+        ></textarea>
+        <div class="feedback" id="freeFeedback"></div>
+      </div>
+
+      <!-- REPORT -->
+      <div class="section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Session report</div>
+            <div class="section-subtitle">
+              Generate a PDF summary of your latest activity.
+            </div>
+          </div>
+          <button class="primary small" id="pdfBtn">Generate PDF report</button>
+        </div>
+        <div class="report-area" id="reportArea">
+          No activity yet. Complete a Learn, Work, Game, Test, or Free Typing session to see a summary here.
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Wiley Teaches Typing • Created by Benkworld Devops (Mr. Ellis)
+    </footer>
+  </div>
+
+  <!-- jsPDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- App scripts -->
+  <script src="shared.js"></script>
+  <script src="frog.js"></script>
+  <script src="balloon.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
