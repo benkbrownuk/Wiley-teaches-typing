@@ -1,8 +1,9 @@
 // shared.js
 // Shared utilities, difficulty engine, and word lists for Wiley Teaches Typing
 
-// Grade-based difficulty configuration
+// Grade-based difficulty configuration (0 = Kindergarten)
 const difficultyByGrade = {
+  0: { wpm: 3, accuracy: 75, speed: 0.6, spawnRate: 2800, wordLevel: 1 }, // Kindergarten
   1: { wpm: 5, accuracy: 80, speed: 0.7, spawnRate: 2600, wordLevel: 1 },
   2: { wpm: 8, accuracy: 80, speed: 0.8, spawnRate: 2400, wordLevel: 1 },
   3: { wpm: 12, accuracy: 85, speed: 0.9, spawnRate: 2200, wordLevel: 2 },
@@ -25,10 +26,10 @@ const wordLists = {
   4: ["development", "education", "literacy", "proficiency", "motivation", "discipline", "consistency", "improvement", "challenge", "achievement"]
 };
 
-// Utility: get difficulty for a grade
-function getDifficultyForGrade(grade) {
-  const g = parseInt(grade, 10);
-  if (!g || g < 1 || g > 12) return difficultyByGrade[3]; // default
+// Utility: get difficulty for a grade index (0–12)
+function getDifficultyForGrade(gradeIndex) {
+  const g = parseInt(gradeIndex, 10);
+  if (isNaN(g) || g < 0 || g > 12) return difficultyByGrade[3]; // default
   return difficultyByGrade[g];
 }
 

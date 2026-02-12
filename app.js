@@ -11,7 +11,7 @@ const state = {
   bestAcc: 0,
   lastSection: "None",
   lastReport: "",
-  difficulty: getDifficultyForGrade(3)
+  difficulty: getDifficultyForGrade(3) // default Grade 3
 };
 
 function loadState() {
@@ -20,7 +20,8 @@ function loadState() {
     try {
       const parsed = JSON.parse(saved);
       Object.assign(state, parsed);
-      state.difficulty = getDifficultyForGrade(state.grade || 3);
+      const gradeKey = state.grade === "K" ? 0 : parseInt(state.grade || "3", 10);
+      state.difficulty = getDifficultyForGrade(gradeKey);
     } catch {}
   }
   updateGlobalUI();
@@ -33,14 +34,13 @@ function saveState() {
 function updateGlobalUI() {
   const userInfo = document.getElementById("userInfo");
   if (state.studentName && state.grade) {
+    const gradeLabel = state.grade === "K" ? "Kindergarten" : "Grade " + state.grade;
     userInfo.innerHTML =
-      state.studentName +
-      ' <span class="badge">Grade ' +
-      state.grade +
-      "</span>";
+      state.studentName + ' <span class="badge">' + gradeLabel + "</span>";
   } else {
     userInfo.textContent = "Not signed in";
   }
+
   document.getElementById("statSessions").textContent = state.sessions;
   document.getElementById("statBestWpm").textContent = state.bestWpm;
   document.getElementById("statBestAcc").textContent = state.bestAcc;
@@ -53,7 +53,6 @@ function updateGlobalUI() {
   else label += " • Pro";
   levelBadge.textContent = label;
 
-  // Difficulty line
   const diff = state.difficulty;
   document.getElementById("targetWpm").textContent = diff.wpm;
   document.getElementById("targetAcc").textContent = diff.accuracy;
@@ -76,22 +75,60 @@ function updateProgress(sectionName, wpm, acc) {
 const startBtn = document.getElementById("startBtn");
 startBtn.addEventListener("click", () => {
   const name = document.getElementById("studentName").value.trim();
-  const grade = document.getElementById("studentGrade").value;
+  const grade = document.getElementById("studentGrade").value; // "K" or "1"–"12"
   if (!name || !grade) {
     alert("Please enter your name and select your grade.");
     return;
   }
+
   state.studentName = name;
   state.grade = grade;
-  state.difficulty = getDifficultyForGrade(grade);
+  const gradeKey = grade === "K" ? 0 : parseInt(grade, 10);
+  state.difficulty = getDifficultyForGrade(gradeKey);
+
   FrogGame.setDifficulty(state.difficulty);
   BalloonGame.setDifficulty(state.difficulty);
+  MatchingGame.initFromGrade(grade);
+
   saveState();
   updateGlobalUI();
+
   document.getElementById("loginCard").classList.add("hidden");
   document.getElementById("mainApp").classList.remove("hidden");
+
   newLearnTarget();
   newWorkParagraph();
+});
+
+// SIGN OUT
+const signOutBtn = document.getElementById("signOutBtn");
+signOutBtn.addEventListener("click", () => {
+  // Stop frog game movement
+  if (window.FrogGame && FrogGame.stop) {
+    FrogGame.stop();
+  }
+
+  // Clear state and storage
+  localStorage.removeItem("wileyTypingState");
+  state.studentName = "";
+  state.grade = "";
+  state.level = 1;
+  state.sessions = 0;
+  state.bestWpm = 0;
+  state.bestAcc = 0;
+  state.lastSection = "None";
+  state.lastReport = "";
+  state.difficulty = getDifficultyForGrade(3);
+
+  // Reset UI
+  document.getElementById("loginCard").classList.remove("hidden");
+  document.getElementById("mainApp").classList.add("hidden");
+  document.getElementById("studentName").value = "";
+  document.getElementById("studentGrade").value = "";
+  document.getElementById("reportArea").textContent =
+    "No activity yet. Complete a Learn, Work, Game, Test, or Free Typing session to see a summary here.";
+
+  updateGlobalUI();
 });
 
 // TABS
@@ -123,6 +160,7 @@ const learnSentences = [
   "Type each word carefully and stay relaxed",
   "Little by little, your speed will grow"
 ];
+
 const learnTargetEl = document.getElementById("learnTarget");
 const learnInputEl = document.getElementById("learnInput");
 const learnFeedbackEl = document.getElementById("learnFeedback");
@@ -183,6 +221,7 @@ const workParagraphs = [
   "In this assignment, your goal is to copy the paragraph as accurately as you can. Take your time.",
   "Good posture, relaxed hands, and careful eyes will help you become a stronger typist every day."
 ];
+
 const workTargetEl = document.getElementById("workTarget");
 const workInputEl = document.getElementById("workInput");
 const workFeedbackEl = document.getElementById("workFeedback");
@@ -218,7 +257,8 @@ workCheckBtn.addEventListener("click", () => {
     "% • Errors: " +
     stats.errors;
   workFeedbackEl.className =
-    "feedback " + (stats.accuracy >= Math.max(90, state.difficulty.accuracy) ? "good" : "bad");
+    "feedback " +
+    (stats.accuracy >= Math.max(90, state.difficulty.accuracy) ? "good" : "bad");
 
   state.lastReport =
     "Section: Work\nParagraph: " +
@@ -238,19 +278,27 @@ workCheckBtn.addEventListener("click", () => {
 // GAMES SECTION – TOGGLE
 const frogContainer = document.getElementById("frogGameContainer");
 const balloonContainer = document.getElementById("balloonGameContainer");
+const matchingGameContainer = document.getElementById("matchingGameContainer");
 const gameToggleButtons = document.querySelectorAll(".game-toggle");
 
-gameToggleButtons.forEach(btn => {
+gameToggleButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     const game = btn.getAttribute("data-game");
-    gameToggleButtons.forEach(b => b.classList.remove("active"));
+    gameToggleButtons.forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
+
     if (game === "frog") {
       frogContainer.classList.remove("hidden");
       balloonContainer.classList.add("hidden");
-    } else {
+      matchingGameContainer.classList.add("hidden");
+    } else if (game === "balloon") {
       frogContainer.classList.add("hidden");
       balloonContainer.classList.remove("hidden");
+      matchingGameContainer.classList.add("hidden");
+    } else {
+      frogContainer.classList.add("hidden");
+      balloonContainer.classList.add("hidden");
+      matchingGameContainer.classList.remove("hidden");
     }
   });
 });
@@ -302,7 +350,9 @@ balloonModeModal.addEventListener("click", (e) => {
     return;
   }
   BalloonGame.closeModeModal();
-  BalloonGame.startGame(mode === "timed" ? BalloonGame.MODES.TIMED : BalloonGame.MODES.ESCAPE);
+  BalloonGame.startGame(
+    mode === "timed" ? BalloonGame.MODES.TIMED : BalloonGame.MODES.ESCAPE
+  );
 });
 
 balloonInputEl.addEventListener("keydown", (e) => {
@@ -328,6 +378,61 @@ balloonInputEl.addEventListener("keydown", (e) => {
   }
 });
 
+// MATCHING GAME RESET BUTTON
+const resetMatchingBtn = document.getElementById("resetMatchingBtn");
+resetMatchingBtn.addEventListener("click", () => {
+  if (window.MatchingGame && MatchingGame.resetProgress) {
+    MatchingGame.resetProgress();
+  }
+});
+
+// MATCHING GAME PROGRESSION HOOK
+window.updateMatchingProgress = function (summary) {
+  const {
+    won,
+    moves,
+    matchedPairs,
+    totalPairs,
+    timeLimit,
+    remainingTime,
+    accuracy,
+    levelJump,
+    newLevel
+  } = summary;
+
+  const wpm = timeLimit
+    ? Math.round(matchedPairs / (timeLimit / 60))
+    : matchedPairs * 2;
+
+  updateProgress("Games (Matching)", wpm, accuracy);
+
+  state.lastReport =
+    "Section: Games (Matching)\n" +
+    "Result: " +
+    (won ? "Completed" : "Time up") +
+    "\n" +
+    "Moves: " +
+    moves +
+    "\n" +
+    "Matched pairs: " +
+    matchedPairs +
+    " / " +
+    totalPairs +
+    "\n" +
+    (timeLimit ? "Time limit: " + timeLimit + "s\n" : "") +
+    (remainingTime !== null ? "Time remaining: " + remainingTime + "s\n" : "") +
+    "Accuracy: " +
+    accuracy +
+    "%\n" +
+    "Level change: " +
+    (levelJump > 0 ? "+" + levelJump : "repeat") +
+    "\n" +
+    "New level: " +
+    newLevel;
+
+  document.getElementById("reportArea").textContent = state.lastReport;
+};
+
 // TEST SECTION
 const testTargetEl = document.getElementById("testTarget");
 const testInputEl = document.getElementById("testInput");
@@ -336,11 +441,13 @@ const testWpmEl = document.getElementById("testWpm");
 const testAccEl = document.getElementById("testAcc");
 const testFeedbackEl = document.getElementById("testFeedback");
 const testStartBtn = document.getElementById("testStartBtn");
+
 const testTexts = [
   "Typing tests help you measure your speed and accuracy. Stay calm and keep your eyes on the text.",
   "During this one minute test, try to type as much of the passage as you can without rushing.",
   "Accuracy is more important than speed at first. With practice, both will improve together."
 ];
+
 let testTimer = null;
 let testRemaining = 60;
 let testStartTime = null;
@@ -416,6 +523,7 @@ const freeWpmEl = document.getElementById("freeWpm");
 const freeAccEl = document.getElementById("freeAcc");
 const freeFeedbackEl = document.getElementById("freeFeedback");
 const freeResetBtn = document.getElementById("freeResetBtn");
+
 let freeStartTime = null;
 let freeTimer = null;
 let freeChars = 0;
@@ -479,7 +587,7 @@ pdfBtn.addEventListener("click", () => {
     "Student: " +
     (state.studentName || "Unknown") +
     " | Grade: " +
-    (state.grade || "N/A") +
+    (state.grade === "K" ? "Kindergarten" : state.grade || "N/A") +
     " | Level: " +
     state.level;
   doc.text(meta, 10, 23);

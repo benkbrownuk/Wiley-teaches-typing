@@ -29,11 +29,11 @@ body {
 
 .app-container {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1200px;
   background: rgba(255, 255, 255, 0.96);
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
-  padding: 20px 24px 28px;
+  padding: 16px 18px 20px;
 }
 
 /* HEADER */
@@ -74,6 +74,12 @@ header {
 .brand-subtitle {
   font-size: 12px;
   color: var(--muted);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .user-info {
@@ -255,7 +261,7 @@ button.small {
 .section {
   background: var(--card);
   border-radius: var(--radius);
-  padding: 16px 14px 18px;
+  padding: 14px 12px 16px;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
   margin-bottom: 10px;
 }
@@ -377,7 +383,8 @@ button.small {
 
 .frog-game-area {
   position: relative;
-  height: 160px;
+  height: 55vh;
+  min-height: 260px;
   border-radius: 12px;
   background: linear-gradient(to top, #bbf7d0, #e0f2fe);
   overflow: hidden;
@@ -415,7 +422,8 @@ button.small {
 
 .balloon-game-area {
   position: relative;
-  height: 220px;
+  height: 55vh;
+  min-height: 260px;
   border-radius: 12px;
   background: linear-gradient(to top, #bfdbfe, #e0f2fe);
   overflow: hidden;
@@ -478,43 +486,90 @@ button.small {
   color: #ffffff;
 }
 
-/* MODAL */
+/* MATCHING GAME */
 
-.modal {
+#matchingGameContainer {
+  margin-top: 6px;
+}
+
+.fullscreen-game {
+  position: relative;
+  height: 85vh;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.matching-board {
+  display: grid;
+  gap: 6px;
+  justify-content: center;
+  align-content: center;
+  min-height: 260px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Card styles */
+.matching-board .card {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  perspective: 800px;
+  cursor: pointer;
+}
+
+.matching-board .card-inner {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.35);
+  transition: transform 0.4s;
+  transform-style: preserve-3d;
+}
+
+.matching-board .card.flipped .card-inner,
+.matching-board .card.matched .card-inner {
+  transform: rotateY(180deg);
+}
+
+.matching-board .card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  backface-visibility: hidden;
+}
+
+.matching-board .card-front {
+  background: #ffffff;
+  border: 2px solid #2563eb;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.modal-content {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 16px 18px;
-  max-width: 320px;
-  width: 100%;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.35);
-}
-
-.modal-title {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.modal-subtitle {
+  font-weight: 700;
+  color: #2563eb;
   font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 10px;
 }
 
-.modal-buttons {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.matching-board .card-back {
+  transform: rotateY(180deg);
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  border: 2px solid #f97316;
 }
+
+/* Grid sizes */
+.matching-board.board-2x2 { grid-template-columns: repeat(2, minmax(60px, 1fr)); }
+.matching-board.board-2x3 { grid-template-columns: repeat(3, minmax(60px, 1fr)); }
+.matching-board.board-3x4 { grid-template-columns: repeat(4, minmax(60px, 1fr)); }
+.matching-board.board-4x4 { grid-template-columns: repeat(4, minmax(60px, 1fr)); }
+.matching-board.board-4x5 { grid-template-columns: repeat(5, minmax(60px, 1fr)); }
+.matching-board.board-4x6 { grid-template-columns: repeat(6, minmax(60px, 1fr)); }
+.matching-board.board-5x6 { grid-template-columns: repeat(6, minmax(60px, 1fr)); }
+.matching-board.board-6x6 { grid-template-columns: repeat(6, minmax(60px, 1fr)); }
+.matching-board.board-6x7 { grid-template-columns: repeat(7, minmax(50px, 1fr)); }
+.matching-board.board-7x8 { grid-template-columns: repeat(8, minmax(45px, 1fr)); }
+.matching-board.board-8x8 { grid-template-columns: repeat(8, minmax(40px, 1fr)); }
 
 /* REPORT */
 
