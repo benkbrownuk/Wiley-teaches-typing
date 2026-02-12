@@ -6,47 +6,33 @@
 // - Persistent progress
 // - Reset support
 // - Fullscreen mode
+// - Auto-load 20 images per grade
 // - Fallback images
 // - Wiley-style UI
 
-// -------------------------------
-// IMAGE POOLS (with fallback)
-// -------------------------------
-const DEFAULT_IMAGES = [
-  "assets/matching/default/icon_01.png",
-  "assets/matching/default/icon_02.png",
-  "assets/matching/default/icon_03.png",
-  "assets/matching/default/icon_04.png",
-  "assets/matching/default/icon_05.png",
-  "assets/matching/default/icon_06.png",
-  "assets/matching/default/icon_07.png",
-  "assets/matching/default/icon_08.png",
-  "assets/matching/default/icon_09.png",
-  "assets/matching/default/icon_10.png",
-  "assets/matching/default/icon_11.png",
-  "assets/matching/default/icon_12.png"
-];
+// ------------------------------------------------------
+// AUTO-GENERATE IMAGE POOLS (20 images per grade)
+// ------------------------------------------------------
+const IMAGE_POOLS = {};
 
-// Grade-specific pools (optional)
-const IMAGE_POOLS = {
-  0: DEFAULT_IMAGES,
-  1: DEFAULT_IMAGES,
-  2: DEFAULT_IMAGES,
-  3: DEFAULT_IMAGES,
-  4: DEFAULT_IMAGES,
-  5: DEFAULT_IMAGES,
-  6: DEFAULT_IMAGES,
-  7: DEFAULT_IMAGES,
-  8: DEFAULT_IMAGES,
-  9: DEFAULT_IMAGES,
-  10: DEFAULT_IMAGES,
-  11: DEFAULT_IMAGES,
-  12: DEFAULT_IMAGES
-};
+for (let g = 0; g <= 12; g++) {
+  IMAGE_POOLS[g] = [];
+  for (let i = 1; i <= 20; i++) {
+    const num = String(i).padStart(2, "0");
+    IMAGE_POOLS[g].push(`assets/matching/grade${g}/img${num}.png`);
+  }
+}
 
-// -------------------------------
+// Fallback images (if a grade folder is missing)
+const FALLBACK_IMAGES = [];
+for (let i = 1; i <= 20; i++) {
+  const num = String(i).padStart(2, "0");
+  FALLBACK_IMAGES.push(`assets/matching/default/img${num}.png`);
+}
+
+// ------------------------------------------------------
 // MATCHING GAME MODULE
-// -------------------------------
+// ------------------------------------------------------
 const MatchingGame = (function () {
   // -------------------------------
   // STATE
@@ -154,11 +140,13 @@ const MatchingGame = (function () {
     board.classList.add(`board-${rows}x${cols}`);
 
     // Build deck
-    const images = IMAGE_POOLS[currentGradeIndex] || DEFAULT_IMAGES;
+    const gradeImages = IMAGE_POOLS[currentGradeIndex] || FALLBACK_IMAGES;
     const chosen = [];
+
     for (let i = 0; i < totalPairs; i++) {
-      chosen.push(images[i % images.length]);
+      chosen.push(gradeImages[i % gradeImages.length]);
     }
+
     const deck = shuffle([...chosen, ...chosen]);
 
     // Render cards
